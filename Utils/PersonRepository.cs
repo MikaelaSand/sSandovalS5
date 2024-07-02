@@ -3,7 +3,6 @@ using sSandovalS5.Modelos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,22 +10,22 @@ namespace sSandovalS5.Utils
 {
     public class PersonRepository
     {
-        string dbPath;
+        string _dbPath;
         private SQLiteConnection conn;
 
         public string StatusMessage { get; set; }
 
-        private void init () 
+        private void Init() 
         { 
             if (conn is not  null)
                 return;
-            conn = new(dbPath);
-            conn.CreateTable<Persona> ();
+            conn = new(_dbPath);
+            conn.CreateTable<Persona>();
         }
 
-        public  PersonRepository (string path)
+        public  PersonRepository (string dbPath)
         {
-            dbPath = path;
+            _dbPath = dbPath;
         }
 
         public void AddNewPerson(string nombre) 
@@ -34,15 +33,13 @@ namespace sSandovalS5.Utils
             int result = 0;
             try
             {
-                init();
+                Init();
                 if (string.IsNullOrEmpty(nombre))
                     throw new Exception("El Nombre Es Requerido");
 
                 Persona persona = new() { Nombre = nombre };
                 result = conn.Insert(persona);
                 StatusMessage = string.Format("Dato Añadido Correstamente", result, nombre);
-
-
             }
             catch (Exception ex)
             {
@@ -57,7 +54,7 @@ namespace sSandovalS5.Utils
         {
             try
             {
-                init();
+                Init();
                 return conn.Table<Persona>().ToList();
             }
             catch (Exception ex)
@@ -67,5 +64,19 @@ namespace sSandovalS5.Utils
             }
             return new List<Persona>();
         }
+
+        public void DeletePerson(Persona persona)
+        {
+            Init();
+            conn.Delete(persona);
+        }
+
+        public void UpdatePerson(Persona persona)
+        {
+            Init();
+            conn.Delete(persona);
+        }
+
     }
+
 }
